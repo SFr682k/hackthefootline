@@ -1,0 +1,324 @@
+%%	This is file 'hackthefootline-doc.tex', Version 2017-08-04
+%%	Copyright 2017 Sebastian Friedl <sfr682k@t-online.de>
+%% 
+%%	This work may be distributed and/or modified under the conditions of the LaTeX Project
+%%	Public License, either version 1.3c of this license or (at your option) any later version.
+%%	The latest version of this license is available at
+%%		http://www.latex-project.org/lppl.txt
+%%	and version 1.3c or later is part of all distributions of LaTeX version 2008-05-04 or later
+%%
+%%	This work has the LPPL maintenace status 'maintained'.
+%%	The current maintainer of this work is Sebastian Friedl.
+%%
+%%	This work consists of the files hackthefootline.sty and hackthefootline-doc.tex
+%%
+%%	-------------------------------------------------------------------------------------------
+%%
+%%	The hackthefootline package is a tool providing arbitrary footline selection for
+%%	LaTeX beamer's standard themes (other themes may also work, of course)
+%%
+%%	-------------------------------------------------------------------------------------------
+%%
+%%	Please report bugs and other problems as well as suggestions for improvements
+%%	to my email address (sfr682k@t-online.de).
+%%
+%%	-------------------------------------------------------------------------------------------
+%%
+%%	Acknowledgement:
+%%	The basic layout of the two- and three-column footline is based on the original LaTeX
+%%	beamer split and infolines outer themes written by Till Tantau.
+%%
+%%	-------------------------------------------------------------------------------------------
+
+% !TeX spellcheck = en_GB
+
+% !TeX document-id = {681db40e-7a84-4428-b4f4-84e230e3ba79}
+% !TeX program=lualatex
+% !TeX TXS-program:compile=txs:///lualatex/[--shell-escape]
+
+
+\documentclass[11pt]{ltxdoc}
+
+\usepackage[charter]{mathdesign}
+\usepackage[no-math]{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+
+\usepackage{csquotes}
+\usepackage{hologo}
+\usepackage{hyperref}
+\usepackage{minted}
+	\newcommand{\ltxcmd}[1]{\mintinline{LaTeX}{#1}}
+\usepackage[english]{selnolig}
+\usepackage{tikz}
+
+\parindent 0pt
+
+\setmainfont{Noto Serif}
+\setsansfont[Scale=MatchLowercase]{Source Sans Pro}
+\setmonofont[Scale=MatchLowercase]{OCR A Extended}[AutoFakeBold=1.75,AutoFakeSlant=0.225]
+
+\usepackage[left=4.50cm,right=2.75cm,top=3.25cm,bottom=2.75cm,nohead]{geometry}
+
+\hyphenation{}
+
+
+\title{The \texttt{\bfseries hackthefootline} package \\ {\large\url{https://github.com/SFr682k/hackthefootline}}}
+\author{Sebastian Friedl \\ \href{mailto:sfr682k@t-online.de}{\ttfamily sfr682k@t-online.de}}
+\date{2017/08/04}
+
+\hypersetup{pdftitle={The hackthefootline package},pdfauthor={Sebastian Friedl}}
+
+\begin{document}
+	\maketitle
+	\thispagestyle{empty}
+	
+	\begin{center} \itshape
+		Dedicated to all the \LaTeX\ beamer users \dots
+		
+		\medskip
+		\dots who load two different themes in the same presentation \\ or redefine commands to obtain the desired footline \dots
+		
+		\medskip
+		\dots and the other guys just using \mintinline{LaTeX}{\setbeamertemplate{footline}}
+	\end{center}
+	
+	\medskip
+	\begin{abstract}
+		\hspace{-1.5em}%
+		Provides arbitrary footline selection for \LaTeX\ beamer's standard themes (and maybe other themes) by \enquote{hacking} it. \\
+		In this content, \enquote{hacking} means to redefine the footline provided by theme with one of the footline templates provided by this package.
+	\end{abstract}
+	
+	
+	\tableofcontents
+	
+	\clearpage
+	
+
+
+	\subsection*{Dependencies and other requirements}
+	\addcontentsline{toc}{subsection}{Dependencies and other requirements}
+	\emph{Load the \texttt{hackthefootline} package only in \LaTeX\ beamer documents!} \\
+	The package itself depends on the following other packages:
+	
+	\medskip
+	\DescribeMacro{appendixnumber-}\DescribeMacro{beamer}
+	The \texttt{appendixnumberbeamer} package implements a simple solution for appendix frames not being calculated into the total number of frames
+	
+	\medskip
+	\DescribeMacro{etoolbox}
+	Provides access on \hologo{eTeX} primitives
+	
+	\medskip
+	\DescribeMacro{calc}
+	Required for basic calculations
+
+	\medskip
+	\DescribeMacro{numprint}
+	Prints out numbers, counters and lengths
+	
+	\bigskip
+	The dependencies can be removed completely by passing some options to the package. See section \ref{packageoptions} for further details.
+	
+	
+	\subsection*{License}
+	\begin{small}
+		\addcontentsline{toc}{subsection}{License}
+		\textcopyright\ 2017 Sebastian Friedl
+		
+		\smallskip
+		This work may be distributed and/or modified under the conditions of the \LaTeX\ Project Public License, either version 1.3c of this license or (at your option) any later version.
+		
+		\smallskip
+		The latest version of this license is available at \url{http://www.latex-project.org/lppl.txt} and version 1.3c or later is part of all distributions of \LaTeX\ version 2008-05-04 or later.
+		
+		\smallskip
+		This work has the LPPL maintenace status \enquote*{maintained}. The current maintainer of this work is Sebastian Friedl. \\
+		This work consists of the following files:
+		\begin{itemize} \itemsep 0pt
+			\item \texttt{hackthefootline.sty} and
+			\item \texttt{hackthefootline-doc.tex}
+		\end{itemize}
+	\end{small}
+	
+	
+	\subsection*{Acknowledgement}
+	\addcontentsline{toc}{subsection}{Acknowledgement}
+	The basic layout of the two-- and three--column footline is based on the original \LaTeX\ beamer split and infolines outer themes written by Till Tantau.
+	
+	
+	\subsection*{Notice: Behaviour inside the presentation's appendix}
+	\addcontentsline{toc}{subsection}{Notice: Behaviour inside the presentation's appendix}
+	By default, this package \emph{does not count appendix frames} into the total number of frames and resets the counter for frame numbers to 1 as soon as the \ltxcmd{\appendix} command is used. \\
+	Also, frame numbers won't be displayed on frames inside the appendix.
+	
+	\medskip
+	This behaviour can be avoided by passing the \texttt{countappendixframes} option to the package.
+	
+	
+	
+	\clearpage
+	
+	
+	% DOCUMENTATION PART ------------------------------------------------------------------------------------------------------------------------
+	
+	\section{Using the package}
+	The \mintinline{LaTeX}{\usepackage[<Options>]{hackthefootline}} command loads the package\footnote{To do so, the package has to be installed in a way \LaTeX\ is able to find it}. The complete list of options can be found in section \ref{packageoptions}.
+	
+	\medskip
+	At least, you have to pass the \emph{footline's number of columns} as an option to the package \textit{(available: \texttt{onecol}, \texttt{twocols} or \texttt{threecols})}. If you don't do so, the footline gets removed.
+	
+	
+	\section{Package options} \label{packageoptions}
+	The \texttt{hackthefootline} package provides the following options:
+	
+	\medskip
+	\DescribeMacro{onecol}
+	The \enquote{initial footline hack} produces a one--column footline
+	
+	\medskip
+	\DescribeMacro{twocols}
+	The \enquote{initial footline hack} produces a two--column footline
+	
+	\medskip
+	\DescribeMacro{threecols}
+	The \enquote{initial footline hack} produces a three--column footline
+	
+	\medskip
+	\DescribeMacro{countappendix-}\DescribeMacro{frames}
+	If the \texttt{countappendixframes} option is passed to the package, appendix frames are counted into the total number of frames. \\
+	\textit{Removes following dependencies: \texttt{appendixnumberbeamer}, \texttt{etoolbox}}
+	
+	\medskip
+	\DescribeMacro{nofun}
+	Doesn't support frame numbers being shown as \enquote{percent of presentation} \\
+	\textit{Removes following dependencies: \texttt{calc}, \texttt{numprint}}
+	
+	
+	\section{Default configurations}	
+	\subsection*{One--column footline}
+	\begin{tikzpicture}
+		\draw (-.5\textwidth,1.25ex) rectangle (.5\textwidth,-1.25ex);
+		\node[right] at (-.5\textwidth,0) {Short author, short institute:~~~~Short title};
+		\node[left]  at ( .5\textwidth,0) {1 / 1};
+	\end{tikzpicture}
+	
+	\subsection*{Two--column footline}
+	\begin{tikzpicture}
+		\draw (-.5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\draw ( .5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\node[left]  at (0,0) {Short author};
+		\node[right] at (0,0) {Short title};
+	\end{tikzpicture}
+	
+	\subsection*{Three-column footline}
+	\begin{tikzpicture}
+		\draw (-.5000\textwidth,1.25ex) rectangle (-.1667\textwidth,-1.25ex);
+		\draw (-.1667\textwidth,1.25ex) rectangle ( .1667\textwidth,-1.25ex);
+		\draw ( .1667\textwidth,1.25ex) rectangle ( .5000\textwidth,-1.25ex);
+		\node[right] at (-.5\textwidth,0) {Short auth. (short inst.)};
+		\node        at (0,            0) {Short title};
+		\node[left]  at ( .5\textwidth,0) {Short date~~~~1/1};
+	\end{tikzpicture}
+	
+	
+	\section{Defined templates}
+	The \texttt{hackthefootline} package defines templates with a variety of styles to provide easy personalisation. All defined templates are listed in table \ref{deftemplates}. Switching between different styles of a template is described in section \ref{switchingtemplates}.
+	
+	\begin{table} \centering\renewcommand{\arraystretch}{1.25}
+		\begin{tabular}{lll}
+			Template              & Style                               & Switching command             \\ \hline\hline
+			\textbf{Title}        & \textit{Short title}                & \ltxcmd{\htfshorttitle}       \\
+			                      & \textit{Long presentation title}    & \ltxcmd{\htflongtitle}        \\
+			                      & \texttt{no title}                   & \ltxcmd{\htfnotitle}          \\ \hline
+			\textbf{Author/Inst.} & \textit{Short author}               & \ltxcmd{\htfonlyauthor}       \\
+			                      & \textit{Short institute}            & \ltxcmd{\htfonlyinstitute}    \\
+			                      & \textit{Short author (short inst.)} & \ltxcmd{\htfinstitutepths}    \\
+			                      & \textit{Short inst. (short author)} & \ltxcmd{\htfauthorpths}       \\
+			                      & \textit{Short author, short inst.}  & \ltxcmd{\htfauthinst}         \\
+			                      & \texttt{no author/inst.}            & \ltxcmd{\htfnoauthinst}       \\ \hline
+			\textbf{Date}         & \textit{Short date}                 & \ltxcmd{\htfshortdate}        \\
+			                      & \textit{Long date}                  & \ltxcmd{\htflongdate}         \\
+			                      & \texttt{no date}                    & \ltxcmd{\htfnodate}           \\ \hline
+			\textbf{Frame nr.}    & \textit{1}                          & \ltxcmd{\htfcounterframenrs}  \\
+			                      & \textit{1 / 5}                      & \ltxcmd{\htffractionframenrs} \\
+			                      & \textit{42\,\%}                     & \ltxcmd{\htfpercentframenrs}  \\
+			                      & \texttt{no frame numbers}           & \ltxcmd{\htfnoframenrs}       \\ \hline
+			\textbf{Separators:}  & \textit{Author: Title}              & \ltxcmd{\htfcolonsep}         \\
+			                      & \textit{Author, Title}              & \ltxcmd{\htfcommasep}         \\
+			                      & \textit{Author~~~~Title}            & \ltxcmd{\htfsepspace}
+		\end{tabular}
+		
+		\caption{Defined templates and styles}
+		\label{deftemplates}
+	\end{table}
+	
+	\section{Switching styles} \label{switchingtemplates}
+	The styles of the templates at the initial hack are selected depending on the footline's default settings. \\
+	You are able to switch styles inside the \texttt{document} environment by \dots
+	\begin{enumerate}
+		\item changing the current settings using the commands listed in table~\ref{deftemplates} \textit{\textbf{and}}
+		%
+		\item applying the settings with the \ltxcmd{\hackthefootline} command. \par
+			  \textbf{Your changes to the footline's settings only apply when executing this command.}
+	\end{enumerate}
+	
+	\textit{Example:} \vspace{-.75em}
+	\begin{minted}[gobble=2,tabsize=4]{LaTeX}
+		\htflongdate		% Changes current settings ...
+		\htfauthinst
+		\hackthefootline	% ... and applies the changes
+	\end{minted}
+	
+	\bigskip
+	If a template is not shown in the current configuration (e.~g. the frame number in the two--column footline), just switch the style:
+
+	\medskip
+	\begin{tikzpicture}
+		\draw (-.5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\draw ( .5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\node[left]  at (0,0) {Short author};
+		\node[right] at (0,0) {Short title};
+	\end{tikzpicture}
+	\vspace{-1.5em}
+	\begin{minted}[gobble=2,tabsize=4]{LaTeX}
+		\htfcounterframenrs
+		\hackthefootline
+	\end{minted}
+	\begin{tikzpicture}
+		\draw (-.5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\draw ( .5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\node[left]  at (0,            0) {Short author};
+		\node[right] at (0,            0) {Short title};
+		\node[left]  at ( .5\textwidth,0) {1};
+	\end{tikzpicture}
+	
+	
+	\bigskip\bigskip
+	Also, a template shown in the current configuration can be \enquote{removed} by switching the style:
+	
+	\medskip
+	\begin{tikzpicture}
+		\draw (-.5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\draw ( .5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\node[left]  at (0,            0) {Short author};
+		\node[right] at (0,            0) {Short title};
+		\node[left]  at ( .5\textwidth,0) {1};
+	\end{tikzpicture}
+	\vspace{-1.5em}
+	\begin{minted}[gobble=2,tabsize=4]{LaTeX}
+		\htfnoauthinst
+		\hackthefootline
+	\end{minted}
+	\begin{tikzpicture}
+		\draw (-.5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\draw ( .5\textwidth,1.25ex) rectangle (0,-1.25ex);
+		\node[right] at (0,            0) {Short title};
+		\node[left]  at ( .5\textwidth,0) {1};
+	\end{tikzpicture}
+	
+	\vfill
+	\thispagestyle{empty}
+	\listoftables
+\end{document}

@@ -1,2 +1,4 @@
 # hackthefootline
-This package is _under construction_. The first version will be published about late August 2017.
+Provides arbitrary footline selection for LaTeX beamer's standard themes.
+
+This work is licensed under the LPPL 1.3c or any later version.
