@@ -58,12 +58,15 @@
 
 \DeclareOptionBeamer{onecol}{%
 	\beamer@htfinitcolsetuptrue%
+	\htfconfig{title=short, authinst=both, date=none, framenrs=fraction, atsep=colon}%
 	\AtBeginDocument{\htfconfig{cols=one}}\htfprintmessage}
 \DeclareOptionBeamer{twocols}{%
+	\htfconfig{title=short, authinst=onlyauthor, date=none, framenrs=none}%
 	\beamer@htfinitcolsetuptrue%
 	\AtBeginDocument{\htfconfig{cols=two}}\htfprintmessage}
 \DeclareOptionBeamer{threecols}{%
 	\beamer@htfinitcolsetuptrue%
+	\htfconfig{title=short, authinst=instpths, date=short, framenrs=fraction}%
 	\AtBeginDocument{\htfconfig{cols=three}}\htfprintmessage}
 
 \newif\ifbeamer@htfcountappendixframes
@@ -74,7 +77,6 @@
 \beamer@htffunnystufftrue
 \DeclareOptionBeamer{nofun}{\beamer@htffunnystufffalse}
 
-\ProcessOptionsBeamer
 
 
 % Check for author and/or institute when inserting the separation symbol?
@@ -86,11 +88,9 @@
 \newcommand{\htfcheckboth}{\beamer@htfcheckauthtrue\beamer@htfcheckinsttrue}
 \newcommand{\htfchecknone}{\beamer@htfcheckauthfalse\beamer@htfcheckinstfalse}
 
-
 % Variables
 \newif\ifbeamer@htfnotitle
 \newif\ifbeamer@htfshowframenrs
-
 
 % Auxiliary command creating a warning when using a footline without according package option
 \newcommand{\htfcheckforinit}{%
@@ -241,15 +241,9 @@
 
 \pgfkeys{/hackthefootline/cols/.cd,
 	.is choice, .default=none,
-	one/.code={%
-		\htfconfig{title=short, authinst=both, date=none, framenrs=fraction, atsep=colon}%
-		\setbeamertemplate{footline}[htf-onecol]},
-	two/.code={%
-		\htfconfig{title=short, authinst=onlyauthor, date=none, framenrs=none}%
-		\setbeamertemplate{footline}[htf-twocols]},
-	three/.code={%
-		\htfconfig{title=short, authinst=instpths, date=short, framenrs=fraction}%
-		\setbeamertemplate{footline}[htf-threecols]},
+	one/.code={\setbeamertemplate{footline}[htf-onecol]},
+	two/.code={\setbeamertemplate{footline}[htf-twocols]},
+	three/.code={\setbeamertemplate{footline}[htf-threecols]},
 	none/.code={%
 		\htfconfig{framenrs=none}%
 		\setbeamertemplate{footline}[htf-none]},
@@ -346,5 +340,6 @@
 
 % END OF FILE -----------------------------------------------------------------------------------------------------------------------------------
 
+\ProcessOptionsBeamer
 \mode<all>
 \endinput
