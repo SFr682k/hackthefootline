@@ -1,4 +1,4 @@
-%%	This is file 'hackthefootline.sty', Version 2017-08-04
+%%	This is file 'hackthefootline.sty', Version 2018-01-14
 %%	Copyright 2017 Sebastian Friedl <sfr682k@t-online.de>
 %% 
 %%	This work may be distributed and/or modified under the conditions of the LaTeX Project
@@ -31,18 +31,17 @@
 %%	-------------------------------------------------------------------------------------------
 
 
-\ProvidesPackage{hackthefootline}[2017/08/04 hackthefootline: arbitrary footline selection for LaTeX beamer's standard themes]
+\ProvidesPackage{hackthefootline}[2018/01/14 hackthefootline: arbitrary footline selection for LaTeX beamer's standard themes]
 \mode<presentation>
 
-
+\RequirePackage{pgfkeys}
 
 \newcommand{\htfprintmessage}{%
 	\typeout{}
 	\typeout{========================================}
-	\typeout{FOOTLINE HACK PERFORMED}
-	\typeout{}
-	\typeout{hackthefootline package}
-	\typeout{Version 2017/08/04}
+	\typeout{THE FOOTLINE HAS BEEN TAKEN OVER}
+	\typeout{by the hackthefootline package}
+	\typeout{Version 2018/01/14}
 	\typeout{}
 	\typeout{(c) 2017 Sebastian Friedl}
 	\typeout{Licensed under LPPL 1.3c or later}
@@ -51,19 +50,21 @@
 
 
 
-% OPTION AND VARIABLES DECLARATION --------------------------------------------------------------------------------------------------------------
+% PACKAGE OPTIONS AND VARIABLES -- INCLUDES AUXILIARY STUFF -------------------------------------------------------------------------------------
 
-\newif\ifbeamer@htfonecolfootline
-\beamer@htfonecolfootlinefalse
-\DeclareOptionBeamer{onecol}{\beamer@htfonecolfootlinetrue}
+% Check whether a column package option has been specified
+\newif\ifbeamer@htfinitcolsetup
+\beamer@htfinitcolsetupfalse
 
-\newif\ifbeamer@htftwocolsfootline
-\beamer@htftwocolsfootlinefalse
-\DeclareOptionBeamer{twocols}{\beamer@htftwocolsfootlinetrue}
-
-\newif\ifbeamer@htfthreecolsfootline
-\beamer@htfthreecolsfootlinefalse
-\DeclareOptionBeamer{threecols}{\beamer@htfthreecolsfootlinetrue}
+\DeclareOptionBeamer{onecol}{%
+	\beamer@htfinitcolsetuptrue%
+	\AtBeginDocument{\htfconfig{cols=one}}\htfprintmessage}
+\DeclareOptionBeamer{twocols}{%
+	\beamer@htfinitcolsetuptrue%
+	\AtBeginDocument{\htfconfig{cols=two}}\htfprintmessage}
+\DeclareOptionBeamer{threecols}{%
+	\beamer@htfinitcolsetuptrue%
+	\AtBeginDocument{\htfconfig{cols=three}}\htfprintmessage}
 
 \newif\ifbeamer@htfcountappendixframes
 \beamer@htfcountappendixframesfalse
@@ -73,80 +74,29 @@
 \beamer@htffunnystufftrue
 \DeclareOptionBeamer{nofun}{\beamer@htffunnystufffalse}
 
-
 \ProcessOptionsBeamer
 
-
-% Show frame numbers?
-\newif\ifbeamer@htfshowframenrs
-\beamer@htfshowframenrstrue
 
 % Check for author and/or institute when inserting the separation symbol?
 \newif\ifbeamer@htfcheckauth
 \newif\ifbeamer@htfcheckinst
 \newif\ifbeamer@htfinsertsep
-\newcommand{\htfcheckauthor}{\beamer@htfcheckauthtrue	\beamer@htfcheckinstfalse}
-\newcommand{\htfcheckinstit}{\beamer@htfcheckauthfalse	\beamer@htfcheckinsttrue}
-\newcommand{\htfcheckboth}{	 \beamer@htfcheckauthtrue	\beamer@htfcheckinsttrue}
-\newcommand{\htfchecknone}{  \beamer@htfcheckauthfalse	\beamer@htfcheckinstfalse}
+\newcommand{\htfcheckauthor}{\beamer@htfcheckauthtrue\beamer@htfcheckinstfalse}
+\newcommand{\htfcheckinstit}{\beamer@htfcheckauthfalse\beamer@htfcheckinsttrue}
+\newcommand{\htfcheckboth}{\beamer@htfcheckauthtrue\beamer@htfcheckinsttrue}
+\newcommand{\htfchecknone}{\beamer@htfcheckauthfalse\beamer@htfcheckinstfalse}
 
-% Has the navigation bar been removed by the package?
-\newif\ifbeamer@navigationremoved
-\beamer@navigationremovedfalse
 
 % Variables
-\newif\ifbeamer@htfnotitle			\newif\ifbeamer@htfshorttitle		\newif\ifbeamer@htflongtitle
-\newif\ifbeamer@htfnoauthinst		\newif\ifbeamer@htfonlyauthor		\newif\ifbeamer@htfonlyinstitute
-\newif\ifbeamer@htfinstitutepths	\newif\ifbeamer@htfauthorpths		\newif\ifbeamer@htfauthinst
-\newif\ifbeamer@htfnodate			\newif\ifbeamer@htfshortdate		\newif\ifbeamer@htflongdate
-\newif\ifbeamer@htfnoframenrs		\newif\ifbeamer@htfcounterframenrs	\newif\ifbeamer@htffractionframenrs
-\newif\ifbeamer@htfpercentframenrs
-\newif\ifbeamer@htfcolonsep			\newif\ifbeamer@htfcommasep			\newif\ifbeamer@htfsepspace
-\newif\ifbeamer@htfnofootline
+\newif\ifbeamer@htfnotitle
+\newif\ifbeamer@htfshowframenrs
 
 
-
-% DEFAULT VALUES --------------------------------------------------------------------------------------------------------------------------------
-
-\beamer@htfnofootlinefalse
-\ifbeamer@htfonecolfootline\else
-	\ifbeamer@htftwocolsfootline\else
-		\ifbeamer@htfthreecolsfootline\else
-			\beamer@htfnofootlinetrue
-\fi	\fi	\fi
-
-\newcommand{\htfnofootlinedefault}{%
-	\beamer@htfnoframenrstrue			\beamer@htfcounterframenrsfalse		\beamer@htffractionframenrsfalse
-	\beamer@htfpercentframenrsfalse		\beamer@htfshowframenrsfalse
-}
-
-\newcommand{\htfonecolfootlinedefault}{%
-	\beamer@htfnotitlefalse				\beamer@htfshorttitletrue			\beamer@htflongtitlefalse
-	\beamer@htfnoauthinstfalse			\beamer@htfonlyauthorfalse			\beamer@htfonlyinstitutefalse
-	\beamer@htfinstitutepthsfalse		\beamer@htfauthorpthsfalse			\beamer@htfauthinsttrue
-	\beamer@htfnodatetrue				\beamer@htfshortdatefalse			\beamer@htflongdatefalse
-	\beamer@htfnoframenrsfalse			\beamer@htfcounterframenrsfalse		\beamer@htffractionframenrstrue
-	\beamer@htfpercentframenrsfalse
-	\beamer@htfcolonseptrue				\beamer@htfcommasepfalse			\beamer@htfsepspacefalse
-}
-
-\newcommand{\htftwocolsfootlinedefault}{%
-	\beamer@htfnotitlefalse				\beamer@htfshorttitletrue			\beamer@htflongtitlefalse
-	\beamer@htfnoauthinstfalse			\beamer@htfonlyauthortrue			\beamer@htfonlyinstitutefalse
-	\beamer@htfinstitutepthsfalse		\beamer@htfauthorpthsfalse			\beamer@htfauthinstfalse
-	\beamer@htfnodatetrue				\beamer@htfshortdatefalse			\beamer@htflongdatefalse
-	\beamer@htfnoframenrstrue			\beamer@htfcounterframenrsfalse		\beamer@htffractionframenrsfalse
-	\beamer@htfpercentframenrsfalse
-}
-
-\newcommand{\htfthreecolsfootlinedefault}{%
-	\beamer@htfnotitlefalse				\beamer@htfshorttitletrue			\beamer@htflongtitlefalse
-	\beamer@htfnoauthinstfalse			\beamer@htfonlyauthorfalse			\beamer@htfonlyinstitutefalse
-	\beamer@htfinstitutepthstrue		\beamer@htfauthorpthsfalse			\beamer@htfauthinstfalse
-	\beamer@htfnodatefalse				\beamer@htfshortdatetrue			\beamer@htflongdatefalse
-	\beamer@htfnoframenrsfalse			\beamer@htfcounterframenrsfalse		\beamer@htffractionframenrstrue
-	\beamer@htfpercentframenrsfalse
-}
+% Auxiliary command creating a warning when using a footline without according package option
+\newcommand{\htfcheckforinit}{%
+	\ifbeamer@htfinitcolsetup\else%
+		\PackageWarning{hackthefootline}{When using hacked footlines, please specify an according package option.}
+	\fi}
 
 
 
@@ -159,7 +109,7 @@
 	
 	% Removes frame numbers for appendix slides
 	\apptocmd{\appendix}{%
-		\beamer@htfshowframenrsfalse
+		\htfconfig{framenrs=none}
 	}{}{}
 \fi
 
@@ -178,49 +128,39 @@
 
 
 
-% TEMPLATES: TITLE ------------------------------------------------------------------------------------------------------------------------------
+% TEMPLATES -------------------------------------------------------------------------------------------------------------------------------------
+% Please **always** use \defbeamertemplate **without asterisk**!!
 
-\defbeamertemplate*{htf-title}{none}{}
-\defbeamertemplate*{htf-title}{short}{\insertshorttitle}
-\defbeamertemplate*{htf-title}{long}{\inserttitle}
+% Title
+\defbeamertemplate{htf-title}{none}{}
+\defbeamertemplate{htf-title}{short}{\insertshorttitle}
+\defbeamertemplate{htf-title}{long}{\inserttitle}
 
+% Author/Institute
+\defbeamertemplate{htf-authinst}{none}{}
+\defbeamertemplate{htf-authinst}{onlyauth}{\insertshortauthor}
+\defbeamertemplate{htf-authinst}{onlyinst}{\insertshortinstitute}
+\defbeamertemplate{htf-authinst}{instpths}{\insertshortauthor\ifx\beamer@shortinstitute\@empty\else~~(\insertshortinstitute)\fi}
+\defbeamertemplate{htf-authinst}{authpths}{\insertshortinstitute\ifx\beamer@shortauthor\@empty\else~~(\insertshortauthor)\fi}
+\defbeamertemplate{htf-authinst}{bothcmma}{\insertshortauthor\ifx\beamer@shortinstitute\@empty\else,~\insertshortinstitute\fi}
 
+% Date
+\defbeamertemplate{htf-date}{none}{}
+\defbeamertemplate{htf-date}{short}{\insertshortdate}
+\defbeamertemplate{htf-date}{long}{\insertdate}
 
-% TEMPLATES: AUTHOR / INSTITUTE -----------------------------------------------------------------------------------------------------------------
-
-\defbeamertemplate*{htf-authinst}{none}{}
-\defbeamertemplate*{htf-authinst}{onlyauth}{\insertshortauthor}
-\defbeamertemplate*{htf-authinst}{onlyinst}{\insertshortinstitute}
-\defbeamertemplate*{htf-authinst}{instpths}{\insertshortauthor\ifx\beamer@shortinstitute\@empty\else~~(\insertshortinstitute)\fi}
-\defbeamertemplate*{htf-authinst}{authpths}{\insertshortinstitute\ifx\beamer@shortauthor\@empty\else~~(\insertshortauthor)\fi}
-\defbeamertemplate*{htf-authinst}{bothcmma}{\insertshortauthor\ifx\beamer@shortinstitute\@empty\else,~\insertshortinstitute\fi}
-
-
-
-% TEMPLATES: DATE -------------------------------------------------------------------------------------------------------------------------------
-
-\defbeamertemplate*{htf-date}{none}{}
-\defbeamertemplate*{htf-date}{short}{\insertshortdate}
-\defbeamertemplate*{htf-date}{long}{\insertdate}
-
-
-
-% TEMPLATES: FRAME NUMBERS ----------------------------------------------------------------------------------------------------------------------
-
-\defbeamertemplate*{htf-framenrs}{none}{}
-\defbeamertemplate*{htf-framenrs}{counter}{\insertframenumber}
-\defbeamertemplate*{htf-framenrs}{fraction}{\insertframenumber~/~\inserttotalframenumber}
+% Frame Numbers
+\defbeamertemplate{htf-framenrs}{none}{}
+\defbeamertemplate{htf-framenrs}{counter}{\insertframenumber}
+\defbeamertemplate{htf-framenrs}{fraction}{\insertframenumber~/~\inserttotalframenumber}
 \ifbeamer@htffunnystuff
-	\defbeamertemplate*{htf-framenrs}{percent}{\updateprogress\nprounddigits{0}\lenprint[percent]{\progress}}
+	\defbeamertemplate{htf-framenrs}{percent}{\updateprogress\nprounddigits{0}\lenprint[percent]{\progress}}
 \fi
 
-
-
-% TEMPLATES: AUTHOR-TITLE-SEPERATOR -------------------------------------------------------------------------------------------------------------
-
-\defbeamertemplate*{htf-atsep}{colon}{:~~~~}
-\defbeamertemplate*{htf-atsep}{comma}{,~}
-\defbeamertemplate*{htf-atsep}{space}{~~~~~~~~~~}
+% Author-Title-Seperator
+\defbeamertemplate{htf-atsep}{colon}{:~~~~}
+\defbeamertemplate{htf-atsep}{comma}{,~}
+\defbeamertemplate{htf-atsep}{space}{~~~~~~~~~~}
 
 
 
@@ -230,7 +170,7 @@
 \defbeamertemplate*{footline}{htf-none}{}
 
 % One column
-\defbeamertemplate*{footline}{htf-onecol}{%
+\defbeamertemplate{footline}{htf-onecol}{%
 	\begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex,leftskip=.3cm,rightskip=.3cm]{palette primary}%
 		\usebeamerfont{author in head/foot}
 		\usebeamertemplate{htf-authinst}%
@@ -239,8 +179,8 @@
 		\ifbeamer@htfcheckauth\ifx\beamer@shortauthor\@empty\else\beamer@htfinsertseptrue\fi\fi
 		\ifbeamer@htfcheckinst\ifx\beamer@shortinstitute\@empty\else\beamer@htfinsertseptrue\fi\fi
 		%
-		\ifx\beamer@shorttitle\@empty \beamer@htfinsertsepfalse \fi
-		\ifbeamer@htfnotitle \beamer@htfinsertsepfalse \fi
+		\ifx\beamer@shorttitle\@empty\beamer@htfinsertsepfalse\fi
+		\ifbeamer@htfnotitle\beamer@htfinsertsepfalse\fi
 		%
 		\ifbeamer@htfinsertsep\usebeamertemplate{htf-atsep}\fi
 		%
@@ -261,7 +201,7 @@
 	\fi}
 
 % Two columns
-\defbeamertemplate*{footline}{htf-twocols}{%
+\defbeamertemplate{footline}{htf-twocols}{%
 	\leavevmode%
 	\hbox{\begin{beamercolorbox}[wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{author in head/foot}%
 			\usebeamerfont{author in head/foot}\usebeamertemplate{htf-date}\hfill\usebeamertemplate{htf-authinst}
@@ -273,7 +213,7 @@
 	\vskip0pt}
 
 % Three columns
-\defbeamertemplate*{footline}{htf-threecols}{
+\defbeamertemplate{footline}{htf-threecols}{
 	\leavevmode%
 	\hbox{%
 		\begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,left,leftskip=.3cm]{author in head/foot}%
@@ -297,114 +237,110 @@
 
 
 
-% CONFIGURATION COMMANDS ------------------------------------------------------------------------------------------------------------------------
+% PGF KEYS STORING THE CURRENT FOOTLINE CONFIGURATION -------------------------------------------------------------------------------------------
 
-% Internal commands setting all variables of a certain template to "false"
-\newcommand{\htfcleartitle}{%
-	\beamer@htfnotitlefalse				\beamer@htfshorttitlefalse			\beamer@htflongtitlefalse}
-\newcommand{\htfclearauthinst}{%
-	\beamer@htfnoauthinstfalse			\beamer@htfonlyauthorfalse			\beamer@htfonlyinstitutefalse
-	\beamer@htfinstitutepthsfalse		\beamer@htfauthorpthsfalse			\beamer@htfauthinstfalse}
-\newcommand{\htfcleardate}{%
-	\beamer@htfnodatefalse				\beamer@htfshortdatefalse			\beamer@htflongdatefalse}
-\newcommand{\htfclearframenrs}{%
-	\beamer@htfnoframenrsfalse			\beamer@htfcounterframenrsfalse		\beamer@htffractionframenrsfalse
-	\beamer@htfpercentframenrsfalse		\beamer@htfshowframenrsfalse}
-\newcommand{\htfclearsep}{%
-	\beamer@htfcolonsepfalse			\beamer@htfcommasepfalse			\beamer@htfsepspacefalse}
-\newcommand{\htfclearfootline}{%
-	\beamer@htfonecolfootlinefalse		\beamer@htftwocolsfootlinefalse		\beamer@htfthreecolsfootlinefalse
-	\beamer@htfnofootlinefalse}
-
-% Commands switching the title template
-\newcommand{\htfnotitle}{			\htfcleartitle		\beamer@htfnotitletrue}
-\newcommand{\htfshorttitle}{		\htfcleartitle		\beamer@htfshorttitletrue}
-\newcommand{\htflongtitle}{			\htfcleartitle		\beamer@htflongtitletrue}
-
-% Commands switching the author/institute template
-\newcommand{\htfnoauthinst}{		\htfclearauthinst	\beamer@htfnoauthinsttrue}
-\newcommand{\htfonlyauthor}{		\htfclearauthinst	\beamer@htfonlyauthortrue}
-\newcommand{\htfonlyinstitute}{		\htfclearauthinst	\beamer@htfonlyinstitutetrue}
-\newcommand{\htfinstitutepths}{		\htfclearauthinst	\beamer@htfinstitutepthstrue}
-\newcommand{\htfauthorpths}{		\htfclearauthinst	\beamer@htfauthorpthstrue}
-\newcommand{\htfauthinst}{			\htfclearauthinst	\beamer@htfauthinsttrue}
-
-% Commands switching the date template
-\newcommand{\htfnodate}{			\htfcleardate		\beamer@htfnodatetrue}
-\newcommand{\htfshortdate}{			\htfcleardate		\beamer@htfshortdatetrue}
-\newcommand{\htflongdate}{			\htfcleardate		\beamer@htflongdatetrue}
-
-% Commands switching the frame numbering template
-\newcommand{\htfnoframenrs}{		\htfclearframenrs	\beamer@htfnoframenrstrue}
-\newcommand{\htfcounterframenrs}{	\htfclearframenrs	\beamer@htfcounterframenrstrue		\beamer@htfshowframenrstrue}
-\newcommand{\htffractionframenrs}{	\htfclearframenrs	\beamer@htffractionframenrstrue		\beamer@htfshowframenrstrue}
-\newcommand{\htfpercentframenrs}{	\htfclearframenrs	\beamer@htfpercentframenrstrue		\beamer@htfshowframenrstrue}
-
-% Commands switching the author/title separator template
-\newcommand{\htfcolonsep}{			\htfclearsep		\beamer@htfcolonseptrue}
-\newcommand{\htfcommasep}{			\htfclearsep		\beamer@htfcommaseptrue}
-\newcommand{\htfsepspace}{			\htfclearsep		\beamer@htfsepspacetrue}
-
-
-
-% HACKING COMMAND -------------------------------------------------------------------------------------------------------------------------------
-
-\newcommand{\hackthefootline}{%
-	\htfprintmessage
-	
-	% Selects footline layout
-	\ifbeamer@htfonecolfootline		\setbeamertemplate{footline}[htf-onecol]
-	\else	\ifbeamer@htftwocolsfootline	\setbeamertemplate{footline}[htf-twocols]
-			\else	\ifbeamer@htfthreecolsfootline	\setbeamertemplate{footline}[htf-threecols]
-					\else	\setbeamertemplate{footline}[htf-none]
-	\fi		\fi		\fi
-	
-	% Title
-	\ifbeamer@htfnotitle			\setbeamertemplate{htf-title}[none] \fi
-	\ifbeamer@htfshorttitle 		\setbeamertemplate{htf-title}[short] \fi
-	\ifbeamer@htflongtitle			\setbeamertemplate{htf-title}[long] \fi
-	
-	% Author/Institute
-	\ifbeamer@htfnoauthinst			\setbeamertemplate{htf-authinst}[none] \htfchecknone \fi
-	\ifbeamer@htfonlyauthor			\setbeamertemplate{htf-authinst}[onlyauth] \htfcheckauthor \fi
-	\ifbeamer@htfonlyinstitute		\setbeamertemplate{htf-authinst}[onlyinst] \htfcheckinstit \fi
-	\ifbeamer@htfinstitutepths		\setbeamertemplate{htf-authinst}[instpths] \htfcheckboth \fi
-	\ifbeamer@htfauthorpths			\setbeamertemplate{htf-authinst}[authpths] \htfcheckboth \fi
-	\ifbeamer@htfauthinst			\setbeamertemplate{htf-authinst}[bothcmma] \htfcheckboth \fi
-	
-	% Date
-	\ifbeamer@htfnodate				\setbeamertemplate{htf-date}[none] \fi
-	\ifbeamer@htfshortdate			\setbeamertemplate{htf-date}[short] \fi
-	\ifbeamer@htflongdate			\setbeamertemplate{htf-date}[long] \fi
-	
-	% Frame numbers
-	\ifbeamer@htfnoframenrs			\setbeamertemplate{htf-framenrs}[none] \fi
-	\ifbeamer@htfcounterframenrs	\setbeamertemplate{htf-framenrs}[counter] \fi
-	\ifbeamer@htffractionframenrs	\setbeamertemplate{htf-framenrs}[fraction] \fi
-	\ifbeamer@htfpercentframenrs	\ifbeamer@htffunnystuff \setbeamertemplate{htf-framenrs}[percent]
-									\else	\PackageError{hackthefootline}{For using percent frame numbers don't pass the nofun option}{}
-									\fi \fi
-	
-	% Author--Title--separators
-	\ifbeamer@htfcolonsep			\setbeamertemplate{htf-atsep}[colon] \fi
-	\ifbeamer@htfcommasep 			\setbeamertemplate{htf-atsep}[comma] \fi
-	\ifbeamer@htfsepspace 			\setbeamertemplate{htf-atsep}[space] \fi
+\pgfkeys{/hackthefootline/cols/.cd,
+	.is choice, .default=none,
+	one/.code={%
+		\htfconfig{title=short, authinst=both, date=none, framenrs=fraction, atsep=colon}%
+		\setbeamertemplate{footline}[htf-onecol]},
+	two/.code={%
+		\htfconfig{title=short, authinst=onlyauthor, date=none, framenrs=none}%
+		\setbeamertemplate{footline}[htf-twocols]},
+	three/.code={%
+		\htfconfig{title=short, authinst=instpths, date=short, framenrs=fraction}%
+		\setbeamertemplate{footline}[htf-threecols]},
+	none/.code={%
+		\htfconfig{framenrs=none}%
+		\setbeamertemplate{footline}[htf-none]},
 }
 
+\pgfkeys{/hackthefootline/title/.cd,
+	.is choice, .default=none,
+	short/.code={\setbeamertemplate{htf-title}[short]\beamer@htfnotitlefalse},
+	long/.code={\setbeamertemplate{htf-title}[long]\beamer@htfnotitlefalse},
+	none/.code={\setbeamertemplate{htf-title}[none]\beamer@htfnotitletrue},
+}
+
+\pgfkeys{/hackthefootline/authinst/.cd,
+	.is choice, .default=none,
+	onlyauthor/.code={\setbeamertemplate{htf-authinst}[onlyauth]\htfcheckauthor},
+	onlyinst/.code={\setbeamertemplate{htf-authinst}[onlyinst]\htfcheckinstit},
+	instpths/.code={\setbeamertemplate{htf-authinst}[instpths]\htfcheckboth},
+	authpths/.code={\setbeamertemplate{htf-authinst}[authpths]\htfcheckboth},
+	both/.code={\setbeamertemplate{htf-authinst}[bothcmma]\htfcheckboth},
+	none/.code={\setbeamertemplate{htf-authinst}[none]\htfchecknone},
+}
+
+\pgfkeys{/hackthefootline/date/.cd,
+	.is choice, .default=none,
+	short/.code={\setbeamertemplate{htf-date}[short]},
+	long/.code={\setbeamertemplate{htf-date}[long]},
+	none/.code={\setbeamertemplate{htf-date}[none]}
+}
+
+\pgfkeys{/hackthefootline/framenrs/.cd,
+	.is choice, .default=none,
+	counter/.code={\setbeamertemplate{htf-framenrs}[counter]\beamer@htfshowframenrstrue},
+	fraction/.code={\setbeamertemplate{htf-framenrs}[fraction]\beamer@htfshowframenrstrue},
+	percent/.code={%
+		\ifbeamer@htffunnystuff    \setbeamertemplate{htf-framenrs}[percent]%
+		\else                      \PackageError{hackthefootline}{Do not pass the nofun option when using percent frame numbers!}{}%
+		\fi
+		\beamer@htfshowframenrstrue%
+	},
+	none/.code={\setbeamertemplate{htf-framenrs}[none]\beamer@htfshowframenrsfalse},
+}
+
+\pgfkeys{/hackthefootline/atsep/.cd,
+	.is choice, .default=colon,
+	colon/.code={\setbeamertemplate{htf-atsep}[colon]},
+	comma/.code={\setbeamertemplate{htf-atsep}[comma]},
+	space/.code={\setbeamertemplate{htf-atsep}[space]},
+}
+
+% Configruation Command
+\newcommand{\htfconfig}[1]{\pgfkeys{/hackthefootline/.cd,#1}}
 
 
-% PERFORMS THE "INITIAL HACK" AT BEGINNING A DOCUMENT -------------------------------------------------------------------------------------------
 
-\AtBeginDocument{
-	% Load default settings ...
-	\ifbeamer@htfonecolfootline \htfonecolfootlinedefault
-	\else	\ifbeamer@htftwocolsfootline \htftwocolsfootlinedefault
-	\else	\ifbeamer@htfthreecolsfootline \htfthreecolsfootlinedefault
-	\else	\htfnofootlinedefault
-	\fi		\fi		\fi
-	
-	% ... and perform the hack
-	\hackthefootline}
+% FORMER CONFIGURATION COMMANDS (OBSOLETE!!) ----------------------------------------------------------------------------------------------------
+
+% These configuration commands have been introduced in the initial release of this package and were implemented very ineffective.
+% Since using pgfkeys for switching the templates, the \htfconfig command has been introduced for easier footline configuration.
+% All commands defined in this section obsolete now and should be replaced by \htfconfig, since they may be removed soon.
+
+% Obsolete commands for switching templates
+\newcommand{\htfnotitle}{\htfObsoleteCMD\htfconfig{title=none}}
+\newcommand{\htfshorttitle}{\htfObsoleteCMD\htfconfig{title=short}}
+\newcommand{\htflongtitle}{\htfObsoleteCMD\htfconfig{title=none}}
+\newcommand{\htfnoauthinst}{\htfObsoleteCMD\htfconfig{authinst=none}}
+\newcommand{\htfonlyauthor}{\htfObsoleteCMD\htfconfig{authinst=onlyauthor}}
+\newcommand{\htfonlyinstitute}{\htfObsoleteCMD\htfconfig{authinst=onlyinst}}
+\newcommand{\htfinstitutepths}{\htfObsoleteCMD\htfconfig{authinst=instpths}}
+\newcommand{\htfauthorpths}{\htfObsoleteCMD\htfconfig{authinst=authpths}}
+\newcommand{\htfauthinst}{\htfObsoleteCMD\htfconfig{authinst=both}}
+\newcommand{\htfnodate}{\htfObsoleteCMD\htfconfig{date=none}}
+\newcommand{\htfshortdate}{\htfObsoleteCMD\htfconfig{date=short}}
+\newcommand{\htflongdate}{\htfObsoleteCMD\htfconfig{date=long}}
+\newcommand{\htfnoframenrs}{\htfObsoleteCMD\htfconfig{framenrs=none}}
+\newcommand{\htfcounterframenrs}{\htfObsoleteCMD\htfconfig{framenrs=counter}}
+\newcommand{\htffractionframenrs}{\htfObsoleteCMD\htfconfig{framenrs=fraction}}
+\newcommand{\htfpercentframenrs}{\htfObsoleteCMD\htfconfig{framenrs=percent}}
+\newcommand{\htfcolonsep}{\htfObsoleteCMD\htfconfig{atsep=colon}}
+\newcommand{\htfcommasep}{\htfObsoleteCMD\htfconfig{atsep=comma}}
+\newcommand{\htfsepspace}{\htfObsoleteCMD\htfconfig{atsep=space}}
+
+% This command was used to apply changes, but is useless now.
+\newcommand{\hackthefootline}{%
+	\PackageWarning{hackthefootline}{%
+		The \protect\hackthefootline command is obsolete and may be removed soon. Consider using \noexpand\htfconfig instead}}
+
+% A shorthand for printing an "this command is obsolete" warning
+\newcommand{\htfObsoleteCMD}{%
+	\PackageWarning{hackthefootline}{%
+		The old \noexpand\htf... commands are obsolete and may be removed soon. Consider using \noexpand\htfconfig instead}
+}
 
 
 
