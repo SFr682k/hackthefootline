@@ -4,7 +4,7 @@
 Some `beamer` themes provide footlines -- and some do not.  
 Now, if one wants to have a footline, he is restricted to the (outer) themes providing them or loads multiple themes. On top of that, these provided footlines are only configurable by redefining them as a whole, which is quite uncomfortable and yields many lines of additional code.
 
-`hackthefootline` is a package taking over the footline and redefining them, so they can be configured using key-value syntax. Also, it is possible (but *not* recommended) to switch between different footline types during a presentation.
+`hackthefootline` is a package taking over, defining and redefining different footlines, so they can be configured using key-value syntax. Also, it is possible (but *not* recommended) to switch between different footline types during a presentation.
 
 
 
