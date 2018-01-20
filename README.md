@@ -1,5 +1,5 @@
 # hackthefootline
-## Arbitrary footline selection for LaTeX beamer's standard themes.
+## Arbitrary footline selection and configuration for LaTeX beamer's standard themes.
 
 Some `beamer` themes provide footlines -- and some do not.  
 Now, if one wants to have a footline, he is restricted to the (outer) themes providing them or loads multiple themes. On top of that, these provided footlines are only configurable by redefining them as a whole, which is quite uncomfortable and yields many lines of additional code.
