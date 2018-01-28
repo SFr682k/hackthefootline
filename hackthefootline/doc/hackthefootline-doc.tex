@@ -1,4 +1,4 @@
-%%	This is file 'hackthefootline-doc.tex', Version 2018-01-16
+%%	This is file 'hackthefootline-doc.tex', Version 2018-01-28
 %%	Copyright 2017-18 Sebastian Friedl <sfr682k@t-online.de>
 %% 
 %%	This work may be distributed and/or modified under the conditions of the LaTeX Project
@@ -77,7 +77,7 @@
 
 \title{The \texttt{\bfseries hackthefootline} package \\ {\large\url{https://github.com/SFr682k/hackthefootline}}}
 \author{Sebastian Friedl \\ \href{mailto:sfr682k@t-online.de}{\ttfamily sfr682k@t-online.de}}
-\date{2018/01/16}
+\date{2018/01/28}
 
 \hypersetup{pdftitle={The hackthefootline package},pdfauthor={Sebastian Friedl}}
 
@@ -97,9 +97,12 @@
 	
 	\medskip
 	\begin{abstract}
-		\noindent%
-		\textbf{Arbitrary footline selection and configuration for \LaTeX\ \texttt{beamer}'s standard themes.}
+		\parindent0pt\noindent%
+		\textbf{Arbitrary footline selection and configuration for \LaTeX\ \texttt{beamer}'s standard themes.} \\
 		"hackthefootline" is a package taking over, defining and redefining different footlines, so they can be configured using key-value syntax.
+		
+		\smallskip
+		The basic layout of the two- and three-column footline is based on the original \LaTeX\ beamer split and infolines outer themes written by Till Tantau.
 	\end{abstract}
 	
 	
@@ -124,7 +127,8 @@
 	
 	\medskip
 	\DescribeMacro{appendixnumber-}\DescribeMacro{beamer}
-	The "appendixnumberbeamer" package implements a simple solution for appendix frames not being calculated into the total number of frames
+	\textbf{Only required when using \texttt{beamer} version 3.48 and older.}
+	This package is only required when using "beamer" version 3.48 or older. If you are using "beamer" version 3.49 or later\footnote{i. e. \TeX{}Live 2018 and later}, "hackthefootline" will rely on "beamer"'s internal appendix frame numbering mechanisms.
 	
 	\medskip
 	\DescribeMacro{etoolbox}
@@ -140,6 +144,15 @@
 	
 	\bigskip
 	However, the four latter dependencies can be removed by using some package options. See section \ref{behavioropts} for further details.
+	
+	
+	\subsection*{Notice: Behavior inside the presentation's appendix}
+	\addcontentsline{toc}{subsection}{Notice: Behavior inside the presentation's appendix}
+	By default, appendix frames are \emph{not} counted into the total number of frames when using "hackthefootline". Appendix frame numbers will be counted from 1 when using fraction frame numbers. \\
+	Also, frame numbers won't be displayed on footlines inside the appendix until this is changed using the means of the "\htfconfig" command.
+	
+	\medskip
+	This behavior can be suppressed by passing the "countappendixframes" option.
 	
 	
 	\subsection*{License}
@@ -162,22 +175,8 @@
 	\end{itemize}
 	
 	
-	\subsection*{Acknowledgement}
-	\addcontentsline{toc}{subsection}{Acknowledgement}
-	The basic layout of the two-- and three--column footline is based on the original \LaTeX\ beamer split and infolines outer themes written by Till Tantau.
-	
-	
-	\subsection*{Notice: Behavior inside the presentation's appendix}
-	\addcontentsline{toc}{subsection}{Notice: Behavior inside the presentation's appendix}
-	By default, this package \emph{does not count appendix frames} into the total number of frames and resets the counter for frame numbers to 1 as soon as the "\appendix" command is used. Also, frame numbers won't be displayed on footlines inside the appendix.
-	
-	\medskip
-	This behavior can be suppressed by passing the \texttt{countappendixframes} option.
-	
-	
 	
 	\clearpage
-	
 
 
 
@@ -263,9 +262,11 @@
 			\item[none]
 				Remove the footline completely
 		\end{description}
-		This key is provided although it is \emph{not} recommended to change its value within a document.
-		When initializing "hackthefootline" using a column option and switching to the "none" style, there will be a whitespace \enquote{reserved} for the footline left. \\
-		The other way round, when initializing "hackthefootline" without a column option and switching to a footline, the footline will be cut off at half of its height.
+		
+		Although the "cols" key's value changes, the other keys' values stay the same. \textbf{If you change the number of columns of a footline, the other keys should be adjusted as well.}
+		
+		\medskip
+		\emph{Warning:} Changing this key's value too often might distract your audience.
 	}
 	
 	\DescribeOption{title}{short, long, none}{%
@@ -337,7 +338,7 @@
 	
 	
 	
-	\section{Default configurations} \label{defaultconfig}% TODO: Real pictures
+	\section{Default configurations} \label{defaultconfig}
 	Depending on the selected number of columns, the default configuration of the footlines is as follows:
 	
 	\subsection*{One--column footline}
@@ -360,7 +361,6 @@
 
 
 
-	% TODO: rewrite, more examples from "real" beamer documents
 	\section{Examples}
 	\subsection{Setting up \texttt{hackthefootline}}\label{examples-setup}
 	\paragraph{Example 1:}

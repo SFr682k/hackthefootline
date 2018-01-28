@@ -1,4 +1,4 @@
-%%	This is file 'hackthefootline.sty', Version 2018-01-16
+%%	This is file 'hackthefootline.sty', Version 2018-01-28
 %%	Copyright 2017-18 Sebastian Friedl <sfr682k@t-online.de>
 %% 
 %%	This work may be distributed and/or modified under the conditions of the LaTeX Project
@@ -32,7 +32,7 @@
 %%	-------------------------------------------------------------------------------------------
 
 
-\ProvidesPackage{hackthefootline}[2018/01/16 hackthefootline: Arbitrary footline selection and configuration for LaTeX beamer's standard themes]
+\ProvidesPackage{hackthefootline}[2018/01/28 hackthefootline: Arbitrary footline selection and configuration for LaTeX beamer's standard themes]
 \mode<presentation>
 
 \RequirePackage{pgfkeys}
@@ -42,7 +42,7 @@
 	\typeout{========================================}
 	\typeout{THE FOOTLINE HAS BEEN TAKEN OVER}
 	\typeout{by the hackthefootline package}
-	\typeout{Version 2018/01/16}
+	\typeout{Version 2018/01/28}
 	\typeout{}
 	\typeout{(c) 2017-18 Sebastian Friedl}
 	\typeout{Licensed under LPPL 1.3c or later}
@@ -53,20 +53,13 @@
 
 % PACKAGE OPTIONS AND VARIABLES -- INCLUDES AUXILIARY STUFF -------------------------------------------------------------------------------------
 
-% Check whether a column package option has been specified
-\newif\ifbeamer@htfinitcolsetup
-\beamer@htfinitcolsetupfalse
-
 \DeclareOptionBeamer{onecol}{%
-	\beamer@htfinitcolsetuptrue%
 	\htfconfig{title=short, authinst=both, date=none, framenrs=fraction, atsep=colon}%
 	\AtBeginDocument{\htfconfig{cols=one}}\htfprintmessage}
 \DeclareOptionBeamer{twocols}{%
-	\beamer@htfinitcolsetuptrue%
 	\htfconfig{title=short, authinst=onlyauthor, date=none, framenrs=none}%
 	\AtBeginDocument{\htfconfig{cols=two}}\htfprintmessage}
 \DeclareOptionBeamer{threecols}{%
-	\beamer@htfinitcolsetuptrue%
 	\htfconfig{title=short, authinst=instpths, date=short, framenrs=fraction}%
 	\AtBeginDocument{\htfconfig{cols=three}}\htfprintmessage}
 
@@ -92,40 +85,6 @@
 % Variables
 \newif\ifbeamer@htfnotitle
 \newif\ifbeamer@htfshowframenrs
-
-% Auxiliary command creating a warning when using a footline without according package option
-\newcommand{\htfcheckforinit}{%
-	\ifbeamer@htfinitcolsetup\else%
-		\PackageWarning{hackthefootline}{When using hacked footlines, please specify an according package option.}
-	\fi}
-
-
-
-% ACTIONS FOR NOT COUNTING APPENDIX FRAMES ------------------------------------------------------------------------------------------------------
-
-\ifbeamer@htfcountappendixframes\else
-	% Required packages
-	\RequirePackage{appendixnumberbeamer}
-	\RequirePackage{etoolbox}
-	
-	% Removes frame numbers for appendix slides
-	\apptocmd{\appendix}{%
-		\htfconfig{framenrs=none}
-	}{}{}
-\fi
-
-
-
-% REQUIREMENTS FOR SOME "FUNNY STUFF" -----------------------------------------------------------------------------------------------------------
-
-\ifbeamer@htffunnystuff
-	% Frame numbering in %: requirements, package settings, variables, commands
-	\RequirePackage{calc}
-	\RequirePackage[addmissingzero,autolanguage,nosepfour]{numprint}
-	\npdefunit{percent}{\%}{1}
-	\newlength{\progress}
-	\newcommand{\updateprogress}{\setlength{\progress}{100pt*\ratio{\insertframenumber pt}{\inserttotalframenumber pt}}}
-\fi
 
 
 
@@ -153,10 +112,21 @@
 % Frame Numbers
 \defbeamertemplate{htf-framenrs}{none}{}
 \defbeamertemplate{htf-framenrs}{counter}{\insertframenumber}
-\defbeamertemplate{htf-framenrs}{fraction}{\insertframenumber~/~\inserttotalframenumber}
+\defbeamertemplate{htf-framenrs}{fraction}{%
+	\ifbeamer@htfcountappendixframes{\insertframenumber~/~\inserttotalframenumber}%
+	\else%
+		\ifx\insertmainframenumber\@undefined{\insertframenumber~/~\inserttotalframenumber}%
+		\else%
+			% beamer v3.49 and later: detect whether appendix has been entered and use the required templates and use internal cmds
+			\ifbeamer@inappendix{\insertframenumberinappendix~/~\insertappendixframenumber}%
+			\else{\insertframenumber~/~\insertmainframenumber}%
+			\fi%
+		\fi%
+	\fi}
 \ifbeamer@htffunnystuff
-	\defbeamertemplate{htf-framenrs}{percent}{\updateprogress\nprounddigits{0}\lenprint[percent]{\progress}}
+	\defbeamertemplate{htf-framenrs}{percent}{\htfupdateprogress\nprounddigits{0}\lenprint[htfpercent]{\htfprogress}}
 \fi
+
 
 % Author-Title-Seperator
 \defbeamertemplate{htf-atsep}{colon}{:~~~~}
@@ -242,12 +212,13 @@
 
 \pgfkeys{/hackthefootline/cols/.cd,
 	.is choice, .default=none,
-	one/.code={\setbeamertemplate{footline}[htf-onecol]},
-	two/.code={\setbeamertemplate{footline}[htf-twocols]},
-	three/.code={\setbeamertemplate{footline}[htf-threecols]},
+	one/.code={\setbeamertemplate{footline}[htf-onecol]\beamer@calculateheadfoot},
+	two/.code={\setbeamertemplate{footline}[htf-twocols]\beamer@calculateheadfoot},
+	three/.code={\setbeamertemplate{footline}[htf-threecols]\beamer@calculateheadfoot},
 	none/.code={%
 		\htfconfig{framenrs=none}%
-		\setbeamertemplate{footline}[htf-none]},
+		\setbeamertemplate{footline}[htf-none]%
+		\beamer@calculateheadfoot},
 }
 
 \pgfkeys{/hackthefootline/title/.cd,
@@ -339,8 +310,53 @@
 
 
 
-% END OF FILE -----------------------------------------------------------------------------------------------------------------------------------
+% PROCESS OPTIONS -------------------------------------------------------------------------------------------------------------------------------
+% This *has* to be done here, otherwise mysterious things will happen ...
+% and too many packages will be required ...
 
 \ProcessOptionsBeamer
+
+
+
+% ACTIONS FOR NOT COUNTING APPENDIX FRAMES ------------------------------------------------------------------------------------------------------
+
+\ifbeamer@htfcountappendixframes\else
+	% Required packages
+	\ifx\insertmainframenumber\@undefined\RequirePackage{appendixnumberbeamer}\fi % only beamer v3.48 and earlier
+	\RequirePackage{etoolbox}
+	
+	% Removes frame numbers for appendix slides
+	\apptocmd{\appendix}{%
+		\htfconfig{framenrs=none}
+	}{}{}
+\fi
+
+
+
+% REQUIREMENTS FOR SOME "FUNNY STUFF" -----------------------------------------------------------------------------------------------------------
+
+\ifbeamer@htffunnystuff
+	% Frame numbering in %: requirements, package settings, variables, commands
+	\RequirePackage{calc}
+	\RequirePackage[addmissingzero,autolanguage,nosepfour]{numprint}
+	\npdefunit{htfpercent}{\%}{1}
+	\newlength{\htfprogress}
+	\def\htfupdateprogress{%
+		\ifbeamer@htfcountappendixframes\setlength{\htfprogress}{100pt*\ratio{\insertframenumber pt}{\inserttotalframenumber pt}}%
+		\else%
+			\ifx\insertmainframenumber\@undefined%
+				\setlength{\htfprogress}{100pt*\ratio{\insertframenumber pt}{\inserttotalframenumber pt}}%
+			\else%
+				\ifbeamer@inappendix\setlength{\htfprogress}{100pt*\ratio{\insertframenumberinappendix pt}{\insertappendixframenumber pt}}%
+				\else\setlength{\htfprogress}{100pt*\ratio{\insertframenumber pt}{\insertmainframenumber pt}}%
+				\fi%
+			\fi%
+		\fi}
+\fi
+
+
+
+% END OF FILE -----------------------------------------------------------------------------------------------------------------------------------
+
 \mode<all>
 \endinput
