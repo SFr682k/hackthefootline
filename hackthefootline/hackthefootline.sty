@@ -86,6 +86,10 @@
 \newif\ifbeamer@htfnotitle
 \newif\ifbeamer@htfshowframenrs
 
+% Own replacement for \beamer@inappendix; required for compatibility reasons
+\newif\ifbeamer@htfinsideappendix
+\beamer@htfinsideappendixfalse
+
 
 
 % TEMPLATES -------------------------------------------------------------------------------------------------------------------------------------
@@ -118,7 +122,7 @@
 		\ifx\insertmainframenumber\@undefined{\insertframenumber~/~\inserttotalframenumber}%
 		\else%
 			% beamer v3.49 and later: detect whether appendix has been entered and use the required templates and use internal cmds
-			\ifbeamer@inappendix{\insertframenumberinappendix~/~\insertappendixframenumber}%
+			\ifbeamer@htfinsideappendix{\insertframenumberinappendix~/~\insertappendixframenumber}%
 			\else{\insertframenumber~/~\insertmainframenumber}%
 			\fi%
 		\fi%
@@ -160,7 +164,7 @@
 		\hfill
 		\usebeamercolor{date in head/foot}
 		\usebeamertemplate{htf-date}
-		% Dummy space for frame numbers
+		% Dummy space for frame numbers % TODO: Make this as small as possible (measure box width)
 		\ifbeamer@htfshowframenrs \hspace{5.75em} \fi
 	\end{beamercolorbox}%
 	\ifbeamer@htfshowframenrs
@@ -328,6 +332,7 @@
 	% Removes frame numbers for appendix slides
 	\apptocmd{\appendix}{%
 		\htfconfig{framenrs=none}
+		\beamer@htfinsideappendixtrue
 	}{}{}
 \fi
 
@@ -344,10 +349,9 @@
 	\def\htfupdateprogress{%
 		\ifbeamer@htfcountappendixframes\setlength{\htfprogress}{100pt*\ratio{\insertframenumber pt}{\inserttotalframenumber pt}}%
 		\else%
-			\ifx\insertmainframenumber\@undefined%
-				\setlength{\htfprogress}{100pt*\ratio{\insertframenumber pt}{\inserttotalframenumber pt}}%
+			\ifx\insertmainframenumber\@undefined\setlength{\htfprogress}{100pt*\ratio{\insertframenumber pt}{\inserttotalframenumber pt}}%
 			\else%
-				\ifbeamer@inappendix\setlength{\htfprogress}{100pt*\ratio{\insertframenumberinappendix pt}{\insertappendixframenumber pt}}%
+				\ifbeamer@htfinsideappendix\setlength{\htfprogress}{100pt*\ratio{\insertframenumberinappendix pt}{\insertappendixframenumber pt}}%
 				\else\setlength{\htfprogress}{100pt*\ratio{\insertframenumber pt}{\insertmainframenumber pt}}%
 				\fi%
 			\fi%
