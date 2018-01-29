@@ -1,4 +1,4 @@
-%%	This is file 'hackthefootline.sty', Version 2018-01-28
+%%	This is file 'hackthefootline.sty', Version 2018-01-29
 %%	Copyright 2017-18 Sebastian Friedl <sfr682k@t-online.de>
 %% 
 %%	This work may be distributed and/or modified under the conditions of the LaTeX Project
@@ -32,9 +32,10 @@
 %%	-------------------------------------------------------------------------------------------
 
 
-\ProvidesPackage{hackthefootline}[2018/01/28 hackthefootline: Arbitrary footline selection and configuration for LaTeX beamer's standard themes]
+\ProvidesPackage{hackthefootline}[2018/01/29 hackthefootline: Arbitrary footline selection and configuration for LaTeX beamer's standard themes]
 \mode<presentation>
 
+\RequirePackage{ifthen}
 \RequirePackage{pgfkeys}
 
 \newcommand{\htfprintmessage}{%
@@ -42,7 +43,7 @@
 	\typeout{========================================}
 	\typeout{THE FOOTLINE HAS BEEN TAKEN OVER}
 	\typeout{by the hackthefootline package}
-	\typeout{Version 2018/01/28}
+	\typeout{Version 2018/01/29}
 	\typeout{}
 	\typeout{(c) 2017-18 Sebastian Friedl}
 	\typeout{Licensed under LPPL 1.3c or later}
@@ -57,10 +58,10 @@
 	\htfconfig{title=short, authinst=both, date=none, framenrs=fraction, atsep=colon}%
 	\AtBeginDocument{\htfconfig{cols=one}}\htfprintmessage}
 \DeclareOptionBeamer{twocols}{%
-	\htfconfig{title=short, authinst=onlyauthor, date=none, framenrs=none}%
+	\htfconfig{title=short, authinst=onlyauthor, date=none, framenrs=none, atsep=colon}%
 	\AtBeginDocument{\htfconfig{cols=two}}\htfprintmessage}
 \DeclareOptionBeamer{threecols}{%
-	\htfconfig{title=short, authinst=instpths, date=short, framenrs=fraction}%
+	\htfconfig{title=short, authinst=instpths, date=short, framenrs=fraction, atsep=colon}%
 	\AtBeginDocument{\htfconfig{cols=three}}\htfprintmessage}
 
 \newif\ifbeamer@htfcountappendixframes
@@ -141,13 +142,16 @@
 
 % FOOTLINE DEFINITIONS --------------------------------------------------------------------------------------------------------------------------
 
+% Auxiliary length
+\newlength{\htfframenrboxwidth}%
+
 % No footline
 \defbeamertemplate*{footline}{htf-none}{}
 
 % One column
 \defbeamertemplate{footline}{htf-onecol}{%
 	\begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex,leftskip=.3cm,rightskip=.3cm]{palette primary}%
-		\usebeamerfont{author in head/foot}
+		\usebeamerfont{author in head/foot}%
 		\usebeamertemplate{htf-authinst}%
 		%
 		\beamer@htfinsertsepfalse
@@ -164,15 +168,29 @@
 		\hfill
 		\usebeamercolor{date in head/foot}
 		\usebeamertemplate{htf-date}
-		% Dummy space for frame numbers % TODO: Make this as small as possible (measure box width)
-		\ifbeamer@htfshowframenrs \hspace{5.75em} \fi
+		%
+		% Measure the largest required space when printing frame numbers
+		\newbox\htfpagenumbox%
+		\newbox\htfpercframenumbox%
+		\setbox\htfpagenumbox=\hbox{0\inserttotalframenumber~/~0\inserttotalframenumber}%
+		\setbox\htfpercframenumbox=\hbox{100\,\%}%
+		\ifthenelse{\lengthtest{\wd\htfpagenumbox > \wd\htfpercframenumbox}}%
+			{\setlength{\htfframenrboxwidth}{\wd\htfpagenumbox}}%
+			{\setlength{\htfframenrboxwidth}{\wd\htfpercframenumbox}}%
+		%
+		\ifbeamer@htfshowframenrs \hspace{\htfframenrboxwidth}\hspace{.2\htfframenrboxwidth}~\fi%
 	\end{beamercolorbox}%
 	\ifbeamer@htfshowframenrs
 		\vspace{-3.25ex}
 		\hfill%
-		\begin{beamercolorbox}[wd=6.25em,ht=2.25ex,dp=1ex,right,rightskip=.3cm]{palette primary}
-			\usebeamertemplate{htf-framenrs}
-		\end{beamercolorbox}
+		\addtolength{\htfframenrboxwidth}{.3cm}%
+		\addtolength{\htfframenrboxwidth}{2em}%
+		\addtolength{\htfframenrboxwidth}{.5\htfframenrboxwidth}%
+		\hspace{-1.3\htfframenrboxwidth}%
+		\begin{beamercolorbox}[wd=1.3\htfframenrboxwidth,ht=2.25ex,dp=1ex,right,rightskip=.3cm]{bg}%
+			% The color *has* to be set here; otherwise, the page number box will cover parts of the date
+			\usebeamercolor[fg]{date in head/foot}\usebeamertemplate{htf-framenrs}
+		\end{beamercolorbox}%
 	\fi}
 
 % Two columns
@@ -199,13 +217,26 @@
 		\end{beamercolorbox}%
 		\begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right,rightskip=.3cm]{date in head/foot}%
 			\usebeamerfont{date in head/foot}\usebeamertemplate{htf-date}%
-			% Dummy space for frame numbers
-			\ifbeamer@htfshowframenrs \hspace{5.75em} \fi
+			%
+			% Measure the largest required space when printing frame numbers
+			\newbox\htfpagenumbox%
+			\newbox\htfpercframenumbox%
+			\setbox\htfpagenumbox=\hbox{0\inserttotalframenumber~/~0\inserttotalframenumber}%
+			\setbox\htfpercframenumbox=\hbox{100\,\%}%
+			\ifthenelse{\lengthtest{\wd\htfpagenumbox > \wd\htfpercframenumbox}}%
+				{\setlength{\htfframenrboxwidth}{\wd\htfpagenumbox}}%
+				{\setlength{\htfframenrboxwidth}{\wd\htfpercframenumbox}}%
+			%
+			\ifbeamer@htfshowframenrs \hspace{\htfframenrboxwidth}\hspace{.2\htfframenrboxwidth}~\fi%
 		\end{beamercolorbox}%
 		\ifbeamer@htfshowframenrs%
-			\hspace{-6.25em}%
-			\begin{beamercolorbox}[wd=6.25em,ht=2.25ex,dp=1ex,right,rightskip=.3cm]{date in head/foot}%
-				\usebeamertemplate{htf-framenrs}
+			\addtolength{\htfframenrboxwidth}{.3cm}%
+			\addtolength{\htfframenrboxwidth}{2em}%
+			\addtolength{\htfframenrboxwidth}{.5\htfframenrboxwidth}%
+			\hspace{-1.3\htfframenrboxwidth}%
+			\begin{beamercolorbox}[wd=1.3\htfframenrboxwidth,ht=2.25ex,dp=1ex,right,rightskip=.3cm]{bg}%
+				% The color *has* to be set here; otherwise, the page number box will cover parts of the date
+				\usebeamercolor[fg]{date in head/foot}\usebeamertemplate{htf-framenrs}
 			\end{beamercolorbox}%
 		\fi}%
 	\vskip0pt}
